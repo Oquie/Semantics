@@ -1,0 +1,31 @@
+name: shell commands
+
+on:         
+  - push
+env: 
+  ACCESS_KEY: ${{secrets.ACCESS_KEY}}
+  AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}  
+jobs:
+  terraform-workflows: 
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write   
+    runs-on: ubuntu-latest 
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1     #(we can set up a terraform environment by adding terraform pluggins)
+      - name: set terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+           terraform_version: 1.1.9
+      - name: Terraform init
+        run: terraform init  
+      - name: Terraform validate
+        run: terraform validate
+      - name: Terraform plan
+        run: terraform plan
+      - name: release
+        run: npx semantic-release
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}  
